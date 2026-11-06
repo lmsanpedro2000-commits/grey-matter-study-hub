@@ -587,6 +587,32 @@ if (dashboardContent) {
                         </div>
                     </div>
 
+                    <!-- ACCOUNT ACTIONS -->
+                    <div class="settings-card">
+                        <div class="settings-card-heading">
+                            <div>
+                                <h3>Account Actions</h3>
+                                <p>Manage your current Study Hub session.</p>
+                            </div>
+                        </div>
+
+                        <div class="settings-card-content">
+                            <div class="settings-theme-row">
+                                <div>
+                                    <strong>Logout</strong>
+                                    <p>Sign out of your account and return to the login page.</p>
+                                </div>
+
+                                <button
+                                    type="button"
+                                    id="settingsLogoutButton"
+                                    class="portal-button settings-logout-button">
+                                    Logout
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
                 </div>
             `;
         }
@@ -625,7 +651,142 @@ if (dashboardContent) {
                     `Welcome back, ${user.fullname || "Student"}!`;
             }
         }
+/* =================================================
+   PROFILE PICTURE DISPLAY
+   ================================================= */
 
+let profilePictureURL = null;
+
+function displayProfilePicture(imageBlob) {
+    const image = document.getElementById("profileAvatarImage");
+    const initial = document.getElementById("userInitial");
+
+    const removeButton =
+        document.getElementById("removeProfilePictureButton");
+
+    if (!image || !initial) return;
+
+    // Show or hide the Remove Photo button
+    if (removeButton) {
+        removeButton.hidden = !imageBlob;
+    }
+
+    // Release the previous image URL, if one exists
+    if (profilePictureURL) {
+        URL.revokeObjectURL(profilePictureURL);
+        profilePictureURL = null;
+    }
+
+    if (imageBlob) {
+        profilePictureURL = URL.createObjectURL(imageBlob);
+
+        image.src = profilePictureURL;
+        image.hidden = false;
+        initial.hidden = true;
+
+    } else {
+        image.removeAttribute("src");
+        image.hidden = true;
+        initial.hidden = false;
+    }
+}
+
+/* =================================================
+   LOAD SAVED PROFILE PICTURE
+   ================================================= */
+
+async function loadProfilePicture() {
+    try {
+        const savedPicture = await getProfilePicture();
+
+        displayProfilePicture(savedPicture);
+
+    } catch (error) {
+        console.error("Unable to load profile picture:", error);
+    }
+}
+
+/* =================================================
+   REMOVE PROFILE PICTURE
+   ================================================= */
+
+async function removeProfilePicture() {
+    try {
+        await deleteProfilePicture();
+
+        displayProfilePicture(null);
+
+    } catch (error) {
+        console.error("Unable to remove profile picture:", error);
+        alert("Unable to remove your profile picture. Please try again.");
+    }
+}
+
+const removeProfilePictureButton =
+    document.getElementById("removeProfilePictureButton");
+
+if (removeProfilePictureButton) {
+    removeProfilePictureButton.addEventListener("click", async () => {
+        await removeProfilePicture();
+    });
+}
+
+/* =================================================
+   PROFILE PICTURE UPLOAD
+   ================================================= */
+
+const profileAvatarButton =
+    document.getElementById("profileAvatarButton");
+
+const profilePictureInput =
+    document.getElementById("profilePictureInput");
+
+if (profileAvatarButton && profilePictureInput) {
+
+    profileAvatarButton.addEventListener("click", () => {
+        profilePictureInput.click();
+    });
+
+}
+
+if (profilePictureInput) {
+
+    profilePictureInput.addEventListener("change", async () => {
+
+        const file = profilePictureInput.files[0];
+
+        if (!file) return;
+
+        // Check whether the selected file is an image
+        if (!file.type.startsWith("image/")) {
+            alert("Please select a valid image file.");
+            profilePictureInput.value = "";
+            return;
+        }
+
+        // Limit image size to 5 MB
+        if (file.size > 5 * 1024 * 1024) {
+            alert("Image size must not exceed 5 MB.");
+            profilePictureInput.value = "";
+            return;
+        }
+
+        try {
+            await saveProfilePicture(file);
+
+            displayProfilePicture(file);
+
+        } catch (error) {
+            console.error("Unable to save profile picture:", error);
+            alert("Unable to save your profile picture. Please try again.");
+
+        } finally {
+            profilePictureInput.value = "";
+        }
+
+    });
+
+}
 
         /* =================================================
            11. DATE AND TIME
@@ -1429,6 +1590,13 @@ function renderLessonsPage(searchTerm = "") {
 
 
 document.addEventListener("click", event => {
+    const settingsLogoutButton =
+        event.target.closest("#settingsLogoutButton");
+
+    if (settingsLogoutButton) {
+        logout();
+        return;
+    }
     const filterButton =
         event.target.closest("[data-lesson-filter]");
 
@@ -1804,30 +1972,37 @@ document.addEventListener("click", event => {
            ================================================= */
 
         const DB_NAME = "GreyMatterStudyHub";
-        const DB_VERSION = 1;
+        const DB_VERSION = 2;
         const STORE_NAME = "attachments";
+        const PROFILE_PICTURE_STORE = "profilePictures";
 
         function openAttachmentDatabase() {
-            return new Promise((resolve, reject) => {
-                if (!window.indexedDB) {
-                    reject(new Error("IndexedDB is not supported."));
-                    return;
-                }
-
-                const request = indexedDB.open(DB_NAME, DB_VERSION);
-
-                request.onupgradeneeded = () => {
-                    const database = request.result;
-
-                    if (!database.objectStoreNames.contains(STORE_NAME)) {
-                        database.createObjectStore(STORE_NAME);
-                    }
-                };
-
-                request.onsuccess = () => resolve(request.result);
-                request.onerror = () => reject(request.error);
-            });
+    return new Promise((resolve, reject) => {
+        if (!window.indexedDB) {
+            reject(new Error("IndexedDB is not supported."));
+            return;
         }
+
+        const request = indexedDB.open(DB_NAME, DB_VERSION);
+
+        request.onupgradeneeded = () => {
+            const database = request.result;
+
+            // Preserve existing activity attachments
+            if (!database.objectStoreNames.contains(STORE_NAME)) {
+                database.createObjectStore(STORE_NAME);
+            }
+
+            // Create separate storage for profile pictures
+            if (!database.objectStoreNames.contains(PROFILE_PICTURE_STORE)) {
+                database.createObjectStore(PROFILE_PICTURE_STORE);
+            }
+        };
+
+        request.onsuccess = () => resolve(request.result);
+        request.onerror = () => reject(request.error);
+    });
+}
 
         async function saveAttachment(activityId, file) {
             const database = await openAttachmentDatabase();
@@ -1885,6 +2060,81 @@ document.addEventListener("click", event => {
                 };
             });
         }
+    
+        // ==========================================
+// PROFILE PICTURE STORAGE
+// ==========================================
+
+async function saveProfilePicture(file) {
+    const database = await openAttachmentDatabase();
+
+    return new Promise((resolve, reject) => {
+        const transaction = database.transaction(
+            PROFILE_PICTURE_STORE,
+            "readwrite"
+        );
+
+        transaction.objectStore(PROFILE_PICTURE_STORE).put(
+            file,
+            "studentProfilePicture"
+        );
+
+        transaction.oncomplete = () => {
+            database.close();
+            resolve(true);
+        };
+
+        transaction.onerror = () => {
+            database.close();
+            reject(transaction.error);
+        };
+    });
+}
+
+async function getProfilePicture() {
+    const database = await openAttachmentDatabase();
+
+    return new Promise((resolve, reject) => {
+        const transaction = database.transaction(
+            PROFILE_PICTURE_STORE,
+            "readonly"
+        );
+
+        const request = transaction
+            .objectStore(PROFILE_PICTURE_STORE)
+            .get("studentProfilePicture");
+
+        request.onsuccess = () => resolve(request.result || null);
+        request.onerror = () => reject(request.error);
+
+        transaction.oncomplete = () => database.close();
+        transaction.onerror = () => database.close();
+    });
+}
+
+async function deleteProfilePicture() {
+    const database = await openAttachmentDatabase();
+
+    return new Promise((resolve, reject) => {
+        const transaction = database.transaction(
+            PROFILE_PICTURE_STORE,
+            "readwrite"
+        );
+
+        transaction.objectStore(PROFILE_PICTURE_STORE)
+            .delete("studentProfilePicture");
+
+        transaction.oncomplete = () => {
+            database.close();
+            resolve(true);
+        };
+
+        transaction.onerror = () => {
+            database.close();
+            reject(transaction.error);
+        };
+    });
+}
 
 
         /* =================================================
@@ -2896,17 +3146,8 @@ document.addEventListener("click", event => {
 
         const logoutButton =
             document.getElementById("logoutButton");
-
-        const mobileLogoutButton =
-            document.getElementById("mobileLogoutButton");
-
-        if (logoutButton) {
-            logoutButton.addEventListener("click", logout);
-        }
-
-        if (mobileLogoutButton) {
-            mobileLogoutButton.addEventListener("click", logout);
-        }
+        
+        
 
 
         /* =================================================
@@ -2918,6 +3159,7 @@ document.addEventListener("click", event => {
 
         applyTheme(savedTheme);
         updateProfileBadge();
+        loadProfilePicture();
         updateDateTime();
         updateDashboardStats();
 
