@@ -1,0 +1,154 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Register | Grey Matter Study Hub</title>
+
+    <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body>
+
+    <main class="auth-container">
+
+        <div class="auth-logo">
+            <img src="images/logo.png" alt="Grey Matter Study Hub Logo">
+        </div>
+
+        <section class="auth-card">
+
+            <h1>Create Account</h1>
+
+            <p class="subtitle">
+                Join Grey Matter Study Hub and start learning smarter.
+            </p>
+
+            <form id="registerForm">
+
+                <div class="form-group">
+                    <label for="fullname">Full Name</label>
+                    <input
+                        type="text"
+                        id="fullname"
+                        name="fullname"
+                        placeholder="Enter your full name"
+                        autocomplete="name"
+                        required
+                    >
+                </div>
+
+                <div class="form-group">
+                    <label for="registerEmail">Email Address</label>
+                    <input
+                        type="email"
+                        id="registerEmail"
+                        name="email"
+                        placeholder="Enter your email"
+                        autocomplete="email"
+                        required
+                    >
+                </div>
+
+                <div class="form-group">
+    <label for="registerPassword">Password</label>
+
+    <!-- PASSWORD INPUT WITH VISIBILITY TOGGLE -->
+    <div class="password-input-wrapper">
+
+        <input
+            type="password"
+            id="registerPassword"
+            name="password"
+            placeholder="Create a password"
+            autocomplete="new-password"
+            minlength="8"
+            required
+        >
+
+        <button
+            type="button"
+            class="password-toggle"
+            data-password-toggle
+            aria-label="Show password"
+            aria-controls="registerPassword"
+            aria-pressed="false"
+        >
+            <svg class="eye-icon" viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7Z"/>
+                <circle cx="12" cy="12" r="3"/>
+            </svg>
+
+            <svg class="eye-off-icon" viewBox="0 0 24 24" aria-hidden="true">
+                <path d="m3 3 18 18M10.6 10.6a2 2 0 0 0 2.8 2.8"/>
+                <path d="M9.9 5.2A10.8 10.8 0 0 1 12 5c6.5 0 10 7 10 7a16 16 0 0 1-3.1 3.8M6.2 6.2C3.5 8 2 12 2 12s3.5 7 10 7c1.2 0 2.3-.2 3.3-.6"/>
+            </svg>
+            
+        </button>
+
+    </div>
+</div>
+
+                <div class="form-group">
+    <label for="confirmPassword">Confirm Password</label>
+
+    <!-- CONFIRM PASSWORD INPUT WITH VISIBILITY TOGGLE -->
+    <div class="password-input-wrapper">
+
+        <input
+            type="password"
+            id="confirmPassword"
+            name="confirmPassword"
+            placeholder="Re-enter your password"
+            autocomplete="new-password"
+            minlength="8"
+            required
+        >
+
+        <button
+            type="button"
+            class="password-toggle"
+            data-password-toggle
+            aria-label="Show password"
+            aria-controls="confirmPassword"
+            aria-pressed="false"
+        >
+            <svg class="eye-icon" viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7Z"/>
+                <circle cx="12" cy="12" r="3"/>
+            </svg>
+
+            <svg class="eye-off-icon" viewBox="0 0 24 24" aria-hidden="true">
+                <path d="m3 3 18 18M10.6 10.6a2 2 0 0 0 2.8 2.8"/>
+                <path d="M9.9 5.2A10.8 10.8 0 0 1 12 5c6.5 0 10 7 10 7a16 16 0 0 1-3.1 3.8M6.2 6.2C3.5 8 2 12 2 12s3.5 7 10 7c1.2 0 2.3-.2 3.3-.6"/>
+            </svg>
+        </button>
+
+    </div>
+</div>
+
+                <button type="submit" class="primary-button">
+                    Create Account
+                </button>
+
+            </form>
+
+            <p class="auth-footer">
+                Already have an account?
+                <a href="index.html">Login here</a>
+            </p>
+
+        </section>
+
+        <p class="copyright">
+            © 2026 Grey Matter Study Hub
+        </p>
+
+    </main>
+
+    <script src="js/script.js"></script>
+
+</body>
+</html>
