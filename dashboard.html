@@ -122,11 +122,6 @@
                         <span class="nav-icon" aria-hidden="true">⚙</span>
                     </button>
 
-                    <button class="nav-item" type="button"
-                        id="mobileLogoutButton" aria-label="Logout" title="Logout">
-                        <span class="nav-icon" aria-hidden="true">↪</span>
-                    </button>
-
                 </nav>
 
 
@@ -139,9 +134,42 @@
                     </div>
 
                     <div class="profile-badge">
-                        <span class="profile-avatar" id="userInitial">S</span>
-                        <span id="userName" class="user-name">Student</span>
-                    </div>
+
+    <button
+        type="button"
+        class="profile-avatar"
+        id="profileAvatarButton"
+        aria-label="Change profile picture"
+        title="Change profile picture">
+
+        <img
+            id="profileAvatarImage"
+            alt=""
+            hidden
+        >
+
+        <span id="userInitial">S</span>
+
+    </button>
+
+    <input
+        type="file"
+        id="profilePictureInput"
+        accept="image/*"
+        hidden
+    >
+
+    <span id="userName" class="user-name">Student</span>
+
+    <button
+    type="button"
+    id="removeProfilePictureButton"
+    class="remove-profile-picture-button"
+    hidden>
+    Remove Photo
+</button>
+
+</div>
 
                 </div>
 
